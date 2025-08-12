@@ -53,7 +53,7 @@ namespace JobPortalBackend.Migrations
 
                     b.HasIndex("JobSeekerProfileId");
 
-                    b.ToTable("Applications");
+                    b.ToTable("Applications", (string)null);
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.EmployerProfile", b =>
@@ -96,7 +96,7 @@ namespace JobPortalBackend.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("EmployerProfiles");
+                    b.ToTable("EmployerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.JobListing", b =>
@@ -151,7 +151,7 @@ namespace JobPortalBackend.Migrations
 
                     b.HasIndex("EmployerProfileId");
 
-                    b.ToTable("JobListings");
+                    b.ToTable("JobListings", (string)null);
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.JobSeekerProfile", b =>
@@ -165,12 +165,17 @@ namespace JobPortalBackend.Migrations
                     b.Property<int?>("ExperienceYears")
                         .HasColumnType("int");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("Phone")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ResumeUrl")
                         .IsRequired()
@@ -188,7 +193,7 @@ namespace JobPortalBackend.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("JobSeekerProfiles");
+                    b.ToTable("JobSeekerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.User", b =>
@@ -210,8 +215,8 @@ namespace JobPortalBackend.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("longtext");
+                    b.Property<int>("PhoneNumber")
+                        .HasColumnType("int");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -223,48 +228,59 @@ namespace JobPortalBackend.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.Application", b =>
                 {
-                    b.HasOne("JobPortalBackend.Models.JobListing", null)
+                    b.HasOne("JobPortalBackend.Models.JobListing", "JobListing")
                         .WithMany("Applications")
                         .HasForeignKey("JobListingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("JobPortalBackend.Models.JobSeekerProfile", null)
+                    b.HasOne("JobPortalBackend.Models.JobSeekerProfile", "JobSeekerProfile")
                         .WithMany("Applications")
                         .HasForeignKey("JobSeekerProfileId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobListing");
+
+                    b.Navigation("JobSeekerProfile");
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.EmployerProfile", b =>
                 {
-                    b.HasOne("JobPortalBackend.Models.User", null)
-                        .WithOne()
+                    b.HasOne("JobPortalBackend.Models.User", "User")
+                        .WithOne("EmployerProfile")
                         .HasForeignKey("JobPortalBackend.Models.EmployerProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.JobListing", b =>
                 {
-                    b.HasOne("JobPortalBackend.Models.EmployerProfile", null)
+                    b.HasOne("JobPortalBackend.Models.EmployerProfile", "EmployerProfile")
                         .WithMany("JobListings")
                         .HasForeignKey("EmployerProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("EmployerProfile");
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.JobSeekerProfile", b =>
                 {
-                    b.HasOne("JobPortalBackend.Models.User", null)
-                        .WithOne()
+                    b.HasOne("JobPortalBackend.Models.User", "User")
+                        .WithOne("JobSeekerProfile")
                         .HasForeignKey("JobPortalBackend.Models.JobSeekerProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("JobPortalBackend.Models.EmployerProfile", b =>
@@ -280,6 +296,15 @@ namespace JobPortalBackend.Migrations
             modelBuilder.Entity("JobPortalBackend.Models.JobSeekerProfile", b =>
                 {
                     b.Navigation("Applications");
+                });
+
+            modelBuilder.Entity("JobPortalBackend.Models.User", b =>
+                {
+                    b.Navigation("EmployerProfile")
+                        .IsRequired();
+
+                    b.Navigation("JobSeekerProfile")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

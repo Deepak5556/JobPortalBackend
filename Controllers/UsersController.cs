@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using JobPortalBackend.Data;
 using JobPortalBackend.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace JobPortalBackend.Controllers
 {
@@ -21,38 +23,29 @@ namespace JobPortalBackend.Controllers
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             var users = await _context.Users.ToListAsync();
-
             if (users == null || users.Count == 0)
-            {
-                return NotFound("No users found.");
-            }
+                return NotFound(new { message = "No users found." });
 
-            return users;
+            return Ok(users);
         }
-
 
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
-
             if (user == null)
-            {
-                return NotFound();
-            }
+                return NotFound(new { message = "User not found" });
 
-            return user;
+            return Ok(user);
         }
+
         // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
             if (id != user.UserId)
-            {
-                return BadRequest();
-            }
+                return BadRequest(new { message = "User ID mismatch" });
 
             _context.Entry(user).State = EntityState.Modified;
 
@@ -63,29 +56,22 @@ namespace JobPortalBackend.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!UserExists(id))
-                {
-                    return NotFound();
-                }
+                    return NotFound(new { message = "User not found" });
                 else
-                {
                     throw;
-                }
             }
 
             return NoContent();
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/Users (Register)
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+            return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
         }
 
         // DELETE: api/Users/5
@@ -94,43 +80,44 @@ namespace JobPortalBackend.Controllers
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
-            {
-                return NotFound();
-            }
+                return NotFound(new { message = "User not found" });
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
+        
+
+        // ✅ Login using POST (secure)
+        [HttpPost("Login")]
+        public async Task<IActionResult> LoginValidationPost([FromBody] LoginRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest(new { message = "Email and password are required" });
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (user == null)
+                return NotFound(new { message = "Please create an account." });
+
+            if (user.Password != request.Password)
+                return Unauthorized(new { message = "Invalid password." });
+
+            user.Password = null;
+            return Ok(new { message = "Login successful.", user });
+        }
+
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.UserId == id);
         }
-        [HttpGet("Login/{email}/{password}")]
-        public async Task<IActionResult> Login(string email, string password)
-        {
-            // 1. Check for user with the given email
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+    }
 
-            if (user == null)
-            {
-                // Email not found
-                return NotFound(new { message = "Please create an account." });
-            }
-
-            // 2. Check the password (here assuming plaintext for the example)
-            if (user.Password != password)
-            {
-                // Password does not match
-                return Unauthorized(new { message = "Password mismatch." });
-            }
-
-            // 3. Successful login
-            user.Password = null; // Never return password!
-            return Ok(new { message = "Login successful.", user = user });
-        }
-
-
+    // DTO for login
+    public class LoginRequest
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

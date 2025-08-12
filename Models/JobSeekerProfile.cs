@@ -1,6 +1,4 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-
-namespace JobPortalBackend.Models
+﻿namespace JobPortalBackend.Models
 {
     public class JobSeekerProfile
     {
@@ -11,6 +9,11 @@ namespace JobPortalBackend.Models
         public int? ExperienceYears { get; set; }
         public string ResumeUrl { get; set; }
         public string Skills { get; set; }
+
+        // Applications made by the seeker
         public ICollection<Application>? Applications { get; set; }
+
+        // Optional - Array/List of saved job IDs
+        public List<int>? SavedJobIds { get; set; }
     }
 }
