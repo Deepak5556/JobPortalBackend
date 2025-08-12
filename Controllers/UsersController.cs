@@ -4,6 +4,7 @@ using JobPortalBackend.Data;
 using JobPortalBackend.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace JobPortalBackend.Controllers
 {
@@ -22,7 +23,19 @@ namespace JobPortalBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            // Prevent NULL-to-string crash by projecting with null-coalescing
+            var users = await _context.Users
+                .Select(u => new User
+                {
+                    UserId = u.UserId,
+                    Username = u.Username ?? string.Empty,
+                    Email = u.Email ?? string.Empty,
+                    Password = null, // never return password
+                    PhoneNumber = u.PhoneNumber ?? string.Empty,
+                    Role = u.Role ?? string.Empty
+                })
+                .ToListAsync();
+
             if (users == null || users.Count == 0)
                 return NotFound(new { message = "No users found." });
 
@@ -37,6 +50,7 @@ namespace JobPortalBackend.Controllers
             if (user == null)
                 return NotFound(new { message = "User not found" });
 
+            user.Password = null;
             return Ok(user);
         }
 
@@ -64,14 +78,38 @@ namespace JobPortalBackend.Controllers
             return NoContent();
         }
 
-        // POST: api/Users (Register)
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        // POST: api/Users/Signup
+        [HttpPost("Signup")]
+        public async Task<IActionResult> Signup([FromBody] SignupRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Username) ||
+                string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Password) ||
+                string.IsNullOrWhiteSpace(request.Role) ||
+                string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                return BadRequest(new { message = "All fields are required" });
+            }
+
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+            if (existingUser != null)
+                return Conflict(new { message = "Email already registered" });
+
+            var user = new User
+            {
+                Username = request.Username,
+                Email = request.Email,
+                Password = request.Password, 
+                Role = request.Role,
+                PhoneNumber = request.PhoneNumber
+            };
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
+            user.Password = null;
+            return Ok(new { message = "Signup successful", user });
         }
 
         // DELETE: api/Users/5
@@ -88,16 +126,15 @@ namespace JobPortalBackend.Controllers
             return NoContent();
         }
 
-        
-
-        // ✅ Login using POST (secure)
+        // POST: api/Users/Login
         [HttpPost("Login")]
-        public async Task<IActionResult> LoginValidationPost([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
                 return BadRequest(new { message = "Email and password are required" });
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
             if (user == null)
                 return NotFound(new { message = "Please create an account." });
 
@@ -105,7 +142,7 @@ namespace JobPortalBackend.Controllers
                 return Unauthorized(new { message = "Invalid password." });
 
             user.Password = null;
-            return Ok(new { message = "Login successful.", user });
+            return Ok(new { message = "Login successful", user });
         }
 
         private bool UserExists(int id)
@@ -114,7 +151,16 @@ namespace JobPortalBackend.Controllers
         }
     }
 
-    // DTO for login
+    // DTOs
+    public class SignupRequest
+    {
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Role { get; set; }
+    }
+
     public class LoginRequest
     {
         public string Email { get; set; }
