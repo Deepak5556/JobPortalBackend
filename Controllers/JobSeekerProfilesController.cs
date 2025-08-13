@@ -75,7 +75,6 @@ namespace JobPortalBackend.Controllers
         {
             _context.JobSeekerProfiles.Add(jobSeekerProfile);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction("GetJobSeekerProfile", new { id = jobSeekerProfile.JobSeekerProfileId }, jobSeekerProfile);
         }
 
