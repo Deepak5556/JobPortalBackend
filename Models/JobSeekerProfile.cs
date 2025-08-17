@@ -5,7 +5,6 @@
         public int JobSeekerProfileId { get; set; }
         public int UserId { get; set; }
         public string ProfileURL { get; set; }
-        public long Phone { get; set; }
         public string Location { get; set; }
         public int ExperienceYears { get; set; }
         public string ResumeUrl { get; set; }
