@@ -165,22 +165,21 @@ namespace JobPortalBackend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
-                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
                         .HasColumnType("longtext");
 
                     b.Property<string>("ProfileURL")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ResumeUrl")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("SavedJobIds")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Skills")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("UserId")

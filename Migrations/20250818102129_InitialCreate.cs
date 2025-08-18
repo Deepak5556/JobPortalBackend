@@ -5,7 +5,7 @@
 namespace JobPortalBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSync : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,10 +14,9 @@ namespace JobPortalBackend.Migrations
                 name: "FK_Applications_JobSeekerProfiles_JobSeekerProfileId",
                 table: "Applications");
 
-            migrationBuilder.RenameColumn(
+            migrationBuilder.DropColumn(
                 name: "FullName",
-                table: "JobSeekerProfiles",
-                newName: "ProfileURL");
+                table: "JobSeekerProfiles");
 
             migrationBuilder.AlterColumn<string>(
                 name: "PhoneNumber",
@@ -28,13 +27,44 @@ namespace JobPortalBackend.Migrations
                 oldType: "int")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.AlterColumn<long>(
-                name: "Phone",
+            migrationBuilder.AlterColumn<string>(
+                name: "Skills",
                 table: "JobSeekerProfiles",
-                type: "bigint",
-                nullable: false,
+                type: "longtext",
+                nullable: true,
                 oldClrType: typeof(string),
                 oldType: "longtext")
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "ResumeUrl",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext")
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Phone",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext")
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Location",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext")
+                .Annotation("MySql:CharSet", "utf8mb4")
                 .OldAnnotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.AlterColumn<int>(
@@ -46,6 +76,13 @@ namespace JobPortalBackend.Migrations
                 oldClrType: typeof(int),
                 oldType: "int",
                 oldNullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "ProfileURL",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: true)
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.AddColumn<string>(
                 name: "SavedJobIds",
@@ -81,13 +118,12 @@ namespace JobPortalBackend.Migrations
                 table: "Applications");
 
             migrationBuilder.DropColumn(
-                name: "SavedJobIds",
+                name: "ProfileURL",
                 table: "JobSeekerProfiles");
 
-            migrationBuilder.RenameColumn(
-                name: "ProfileURL",
-                table: "JobSeekerProfiles",
-                newName: "FullName");
+            migrationBuilder.DropColumn(
+                name: "SavedJobIds",
+                table: "JobSeekerProfiles");
 
             migrationBuilder.AlterColumn<int>(
                 name: "PhoneNumber",
@@ -98,14 +134,77 @@ namespace JobPortalBackend.Migrations
                 oldType: "longtext")
                 .OldAnnotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.UpdateData(
+                table: "JobSeekerProfiles",
+                keyColumn: "Skills",
+                keyValue: null,
+                column: "Skills",
+                value: "");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Skills",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.UpdateData(
+                table: "JobSeekerProfiles",
+                keyColumn: "ResumeUrl",
+                keyValue: null,
+                column: "ResumeUrl",
+                value: "");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "ResumeUrl",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.UpdateData(
+                table: "JobSeekerProfiles",
+                keyColumn: "Phone",
+                keyValue: null,
+                column: "Phone",
+                value: "");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Phone",
                 table: "JobSeekerProfiles",
                 type: "longtext",
                 nullable: false,
-                oldClrType: typeof(long),
-                oldType: "bigint")
-                .Annotation("MySql:CharSet", "utf8mb4");
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.UpdateData(
+                table: "JobSeekerProfiles",
+                keyColumn: "Location",
+                keyValue: null,
+                column: "Location",
+                value: "");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Location",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.AlterColumn<int>(
                 name: "ExperienceYears",
@@ -114,6 +213,13 @@ namespace JobPortalBackend.Migrations
                 nullable: true,
                 oldClrType: typeof(int),
                 oldType: "int");
+
+            migrationBuilder.AddColumn<string>(
+                name: "FullName",
+                table: "JobSeekerProfiles",
+                type: "longtext",
+                nullable: false)
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.UpdateData(
                 table: "EmployerProfiles",

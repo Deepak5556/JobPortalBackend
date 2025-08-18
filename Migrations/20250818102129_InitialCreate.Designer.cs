@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JobPortalBackend.Migrations
 {
     [DbContext(typeof(JobPortalContext))]
-    [Migration("20250813093912_InitialSync")]
-    partial class InitialSync
+    [Migration("20250818102129_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,25 +168,21 @@ namespace JobPortalBackend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("Phone")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Phone")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ProfileURL")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ResumeUrl")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("SavedJobIds")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Skills")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("UserId")
